@@ -15,6 +15,7 @@ namespace Canvas
 {
     public class Startup
     {
+        private string CorsPolicy = "_corsPolicy";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -25,6 +26,13 @@ namespace Canvas
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(options =>
+            {
+                options.AddPolicy(name: CorsPolicy, builder =>
+                {
+                    builder.WithOrigins("https://bgcanvas.azurewebsites.net");
+                });
+            });
             services.AddControllers();
             services.AddSwaggerDocument();
             services.AddOptions<CanvasOptions>().Bind(Configuration.GetSection("CanvasOptions"));
@@ -43,7 +51,7 @@ namespace Canvas
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            app.UseCors(CorsPolicy);
             app.UseAuthorization();
 
             app.UseOpenApi();
