@@ -48,10 +48,15 @@ namespace Canvas.Controllers
         }
 
         [HttpGet("Login")]
-        public async Task<IActionResult> Login(string googleToken) //TODO verify organization
+        public async Task<IActionResult> Login(string googleToken)
         {
             GoogleJsonWebSignature.Payload payload = await GoogleJsonWebSignature.ValidateAsync(googleToken);
             if (payload == null) return BadRequest();
+            var organization = payload.HostedDomain;
+            if (organization != "taded.org.il")
+            {
+                return BadRequest();
+            }
             var userId = payload.Subject;
             if (_databaseOperations.DoesUserExist(userId))
             {
