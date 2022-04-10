@@ -7,7 +7,7 @@ namespace ResetCanvas
     {
         static void Main(string[] args)
         {
-            var connectionString = "server=canvas-db.mysql.database.azure.com;userid=yodi555;password=1234qwer!@#$;database=Canvas";
+            var connectionString = "server=canvas-db.mysql.database.azure.com;userid=yodi555;password=1234qwer!@#$;database=Canvas;CharSet=utf8;";
             int width = 100, height = 100;
             var connection = new MySqlConnection(connectionString);
             connection.Open();

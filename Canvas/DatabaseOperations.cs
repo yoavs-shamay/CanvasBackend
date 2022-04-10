@@ -13,7 +13,7 @@ namespace Canvas
         public DatabaseOperations(IOptions<DatabaseOptions> options)
         {
             var dbOptions = options.Value;
-            string connectionString = $"server={dbOptions.Server};userid={dbOptions.UserId};password={dbOptions.Password};database={dbOptions.Database}";
+            string connectionString = $"server={dbOptions.Server};userid={dbOptions.UserId};password={dbOptions.Password};database={dbOptions.Database};charSet={dbOptions.CharSet}";
             _connection = new MySqlConnection(connectionString);
             _connection.Open();
         }
