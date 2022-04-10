@@ -30,7 +30,7 @@ namespace Canvas
             {
                 options.AddPolicy(name: CorsPolicy, builder =>
                 {
-                    builder.WithOrigins("https://bgcanvas.azurewebsites.net");
+                    builder.WithOrigins("https://bgcanvas.azurewebsites.net", "https://bg-canvas.herokuapp.com/");
                 });
             });
             services.AddControllers();
