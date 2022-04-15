@@ -2,6 +2,7 @@
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Canvas
 {
@@ -18,13 +19,13 @@ namespace Canvas
             _connection.Open();
         }
 
-        public Pixel[,] GetAllPixels(int height, int width)
+        public async Task<Pixel[,]> GetAllPixels(int height, int width)
         {
             string query = "SELECT * FROM Pixels";
             MySqlCommand cmd = new MySqlCommand(query, _connection);
-            MySqlDataReader reader = cmd.ExecuteReader();
+            var reader = (await cmd.ExecuteReaderAsync());
             Pixel[,] result = new Pixel[width, height];
-            while (reader.Read())
+            while (await reader.ReadAsync())
             {
                 var red = reader.GetInt32(1);
                 var green = reader.GetInt32(2);
@@ -35,90 +36,90 @@ namespace Canvas
                 var pixel = new Pixel(red, green, blue, lastModifier, x, y);
                 result[x, y] = pixel;
             }
-            reader.Close();
+            await reader.CloseAsync();
             return result;
         }
 
-        public void ReplacePixel(int x, int y,  int newRed, int newGreen, int newBlue, string sessionId)
+        public async Task ReplacePixel(int x, int y,  int newRed, int newGreen, int newBlue, string sessionId)
         {
             var getUserQuery = $"SELECT * FROM {_usersTableName} WHERE sessionId = \"{sessionId}\";";
             var getUserCmd = new MySqlCommand(getUserQuery, _connection);
-            var reader = getUserCmd.ExecuteReader();
+            var reader = await getUserCmd.ExecuteReaderAsync();
             string name;
-            if (reader.Read())
+            if (await reader.ReadAsync())
             {
-                name = reader.GetString(1);
-                reader.Close();
+                name = reader.GetString(1); //TODO async too?
+                await reader.CloseAsync();
             }
             else
             {
-                reader.Close();
+                await reader.CloseAsync();
                 return;
             }
             var replaceQuery = $"UPDATE {_pixelsTableName} SET LastModifier = \"{name}\", Red = {newRed}, Green = {newGreen}, Blue = {newBlue} WHERE X = {x} AND y = {y};";
             var cmd = new MySqlCommand(replaceQuery, _connection);
-            cmd.ExecuteNonQuery();
+            await cmd.ExecuteNonQueryAsync();
             var time = DateTime.Now.ToString();
             var updateQuery = $"UPDATE {_usersTableName} SET LastUpdate = \"{time}\" WHERE SessionId = \"{sessionId}\";";
             var updateCmd = new MySqlCommand(updateQuery, _connection);
-            updateCmd.ExecuteNonQuery();
+            await updateCmd.ExecuteNonQueryAsync();
         }
 
-        public string Login(string userId)
+        public async Task<string> Login(string userId)
         {
             var sessionId = Guid.NewGuid().ToString();
             var updateQuery = $"UPDATE {_usersTableName} SET sessionId = \"{sessionId}\" WHERE userId = \"{userId}\";";
             var cmd = new MySqlCommand(updateQuery, _connection);
-            cmd.ExecuteNonQuery();
+            await cmd.ExecuteNonQueryAsync();
             return sessionId;
         }
 
-        public bool DoesUserExist(string userId)
+        public async Task<bool> DoesUserExist(string userId)
         {
             var query = $"SELECT EXISTS(SELECT 1 FROM {_usersTableName} WHERE userId = \"{userId}\" LIMIT 1);";
             var cmd = new MySqlCommand(query, _connection);
-            var result = ((Int64)cmd.ExecuteScalar()) == 1;
+            var result = ((Int64)(await cmd.ExecuteScalarAsync())) == 1;
             return result;
         }
 
-        public string Register (string userId, string userName)
+        public async Task<string> Register (string userId, string userName)
         {
             var sessionId = Guid.NewGuid().ToString();
             var lastUpdate = DateTime.MinValue.ToString();
             var q = $"INSERT INTO {_usersTableName}(UserId, Username, SessionId, LastUpdate) VALUES(\"{userId}\", \"{userName}\", \"{sessionId}\", \"{lastUpdate}\");";
             var cmd = new MySqlCommand(q, _connection);
-            cmd.ExecuteNonQuery();
+            await cmd.ExecuteNonQueryAsync();
             return sessionId;
         }
 
-        public void Logout(string sessionId)
+        public async Task Logout(string sessionId)
         {
             var q = $"UPDATE {_usersTableName} SET sessionId = \"\" WHERE sessionId = \"{sessionId}\";";
             var cmd = new MySqlCommand(q, _connection);
-            cmd.ExecuteNonQuery();
+            await cmd.ExecuteNonQueryAsync();
         }
 
-        public double GetRemainingTime(string sessionId)
+        public async Task<double> GetRemainingTime(string sessionId)
         {
             var findUserQuery = $"SELECT * FROM {_usersTableName} WHERE sessionId = \"{sessionId}\"";
             var cmd = new MySqlCommand(findUserQuery, _connection);
-            var reader = cmd.ExecuteReader();
-            if (reader.Read())
+            var reader = await cmd.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
             {
                 var lastUpdate = reader.GetString(3);
-                reader.Close();
+                await reader.CloseAsync();
                 var minutesFromLastUpdate = DateTime.Now.Subtract(DateTime.Parse(lastUpdate)).TotalMinutes;
                 return 5 - minutesFromLastUpdate;
             }
-            reader.Close();
+            await reader.CloseAsync();
             return -1;
         }
 
-        public bool IsValidSession(string sessionId)
+        public async Task<bool> IsValidSession(string sessionId)
         {
             var query = $"SELECT EXISTS(SELECT 1 FROM {_usersTableName} WHERE sessionId = \"{sessionId}\" LIMIT 1);";
             var cmd = new MySqlCommand(query, _connection);
-            var result = ((Int64)cmd.ExecuteScalar()) == 1;
+            var result = ((Int64)(await cmd.ExecuteScalarAsync())) == 1;
             return result;
         }
     }

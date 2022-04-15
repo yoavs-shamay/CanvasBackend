@@ -27,23 +27,23 @@ namespace Canvas.Controllers
         }
 
         [HttpGet("GetCanvas")]
-        public IActionResult GetCanvas()
+        public async Task<IActionResult> GetCanvas()
         {
             int height = _canvasOptions.Height;
             int width = _canvasOptions.Width;
-            Pixel[,] pixels = _databaseOperations.GetAllPixels(height, width);
+            Pixel[,] pixels = await _databaseOperations.GetAllPixels(height, width);
             Canvas canvas = new Canvas(width, height, pixels);
             var serilized = JsonConvert.SerializeObject(canvas);
             return Content(serilized);
         }
 
         [HttpGet("ChangePixel")]
-        public IActionResult ChangePixel(string sessionId, int x, int y, int green, int red, int blue) //TODO all async
+        public async Task<IActionResult> ChangePixel(string sessionId, int x, int y, int green, int red, int blue)
         {
             if (x < 0 || y < 0 || x > _canvasOptions.Width || y > _canvasOptions.Height) return BadRequest();
-            if (!_databaseOperations.IsValidSession(sessionId)) return BadRequest();
-            if (_databaseOperations.GetRemainingTime(sessionId) > 0) return BadRequest();
-            _databaseOperations.ReplacePixel(x, y, red, green, blue, sessionId);
+            if (!(await _databaseOperations.IsValidSession(sessionId))) return BadRequest();
+            if ((await _databaseOperations.GetRemainingTime(sessionId)) > 0) return BadRequest();
+            await _databaseOperations.ReplacePixel(x, y, red, green, blue, sessionId);
             return Content("success");
         }
 
@@ -58,32 +58,32 @@ namespace Canvas.Controllers
                 return BadRequest();
             }
             var userId = payload.Subject;
-            if (_databaseOperations.DoesUserExist(userId))
+            if (await _databaseOperations.DoesUserExist(userId))
             {
-                var sessionId = _databaseOperations.Login(userId);
+                var sessionId = await _databaseOperations.Login(userId);
                 return Content(sessionId);
             }
             else
             {
                 var userName = payload.Name;
-                var sessionId = _databaseOperations.Register(userId, userName);
+                var sessionId = await _databaseOperations.Register(userId, userName);
                 return Content(sessionId);
             }
         }
 
         [HttpGet("Logout")]
-        public IActionResult Logout(string sessionId)
+        public async Task<IActionResult> Logout(string sessionId)
         {
-            if (!_databaseOperations.IsValidSession(sessionId)) return BadRequest();
-            _databaseOperations.Logout(sessionId);
+            if (!(await _databaseOperations.IsValidSession(sessionId))) return BadRequest();
+            await _databaseOperations.Logout(sessionId);
             return Content("logout success");
         }
 
         [HttpGet("GetRemainingTime")]
-        public IActionResult GetRemainingTime(string sessionId)
+        public async Task<IActionResult> GetRemainingTime(string sessionId)
         {
-            if (!_databaseOperations.IsValidSession(sessionId)) return BadRequest();
-            return Content(_databaseOperations.GetRemainingTime(sessionId).ToString());
+            if (!(await _databaseOperations.IsValidSession(sessionId))) return BadRequest();
+            return Content((await _databaseOperations.GetRemainingTime(sessionId)).ToString());
         }
     }
 }
