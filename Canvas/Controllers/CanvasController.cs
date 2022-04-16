@@ -86,5 +86,12 @@ namespace Canvas.Controllers
             if (!(await _databaseOperations.IsValidSession(sessionId))) return BadRequest();
             return Content((await _databaseOperations.GetRemainingTime(sessionId)).ToString());
         }
+
+        [HttpGet("CheckSessionId")]
+        public async Task<IActionResult> CheckSessionId(string sessionId)
+        {
+            var isValid = await _databaseOperations.IsValidSession(sessionId);
+            return Content(isValid.ToString());
+        }
     }
 }
