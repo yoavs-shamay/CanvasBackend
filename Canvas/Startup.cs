@@ -34,6 +34,7 @@ namespace Canvas
                 });
             });
             services.AddControllers();
+            services.AddResponseCaching();
             services.AddSwaggerDocument();
             services.AddOptions<CanvasOptions>().Bind(Configuration.GetSection("CanvasOptions"));
             services.AddOptions<DatabaseOptions>().Bind(Configuration.GetSection("DatabaseOptions"));

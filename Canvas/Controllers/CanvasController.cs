@@ -27,6 +27,7 @@ namespace Canvas.Controllers
         }
 
         [HttpGet("GetCanvas")]
+        [ResponseCache(Duration = 1 )]
         public async Task<IActionResult> GetCanvas()
         {
             int height = _canvasOptions.Height;
