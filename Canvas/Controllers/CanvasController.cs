@@ -54,10 +54,10 @@ namespace Canvas.Controllers
             GoogleJsonWebSignature.Payload payload = await GoogleJsonWebSignature.ValidateAsync(googleToken);
             if (payload == null) return BadRequest();
             var organization = payload.HostedDomain;
-            if (organization != "taded.org.il")
+            /*if (organization != "taded.org.il")
             {
                 return BadRequest();
-            }
+            }*/
             var userId = payload.Subject;
             if (await _databaseOperations.DoesUserExist(userId))
             {
