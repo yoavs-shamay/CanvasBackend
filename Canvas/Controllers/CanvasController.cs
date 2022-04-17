@@ -54,7 +54,7 @@ namespace Canvas.Controllers
             GoogleJsonWebSignature.Payload payload = await GoogleJsonWebSignature.ValidateAsync(googleToken);
             if (payload == null) return BadRequest();
             var organization = payload.HostedDomain;
-            if (organization != "taded.org.il")
+            if (organization != "taded.org.il" && organization != "bengurion.org")
             {
                 return BadRequest();
             }
