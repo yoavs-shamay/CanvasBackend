@@ -23,7 +23,7 @@ namespace Canvas
             await connection.OpenAsync(); //TODO if opening a connection delays too much, I can just use an array of like 1000 connections and using 1 at a time
             using (connection)
             {
-                string query = "SELECT * FROM Pixels";
+                string query = $"SELECT * FROM {_pixelsTableName}";
                 MySqlCommand cmd = new MySqlCommand(query, connection);
                 var reader = (await cmd.ExecuteReaderAsync());
                 Pixel[,] result = new Pixel[width, height];
