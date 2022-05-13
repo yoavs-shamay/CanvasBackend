@@ -9,8 +9,8 @@ namespace Canvas
     public class DatabaseOperations
     {
         private string _connectionString;
-        private string _pixelsTableName = "Pixels";
-        private string _usersTableName = "Users";
+        private string _pixelsTableName = "pixels";
+        private string _usersTableName = "users";
         public DatabaseOperations(IOptions<DatabaseOptions> options)
         {
             var dbOptions = options.Value;
