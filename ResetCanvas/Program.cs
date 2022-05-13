@@ -11,7 +11,7 @@ namespace ResetCanvas
         {
             if (Reset)
             {
-                var connectionString = "server=remotemysql.com;userid=xwcWQw3nCm;password=D6mQvJnLV5;database=xwcWQw3nCm;CharSet=utf8;";
+                string connectionString = "server=remotemysql.com;userid=xwcWQw3nCm;password=D6mQvJnLV5;database=xwcWQw3nCm;CharSet=utf8;";
                 int width = 100, height = 100;
                 var connection = new MySqlConnection(connectionString);
                 connection.Open();
