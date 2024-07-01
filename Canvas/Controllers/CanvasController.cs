@@ -12,7 +12,7 @@ namespace Canvas.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class CanvasController : ControllerBase //TODO 1 second caching?
+    public class CanvasController : ControllerBase
     {
 
         private readonly ILogger<CanvasController> _logger;
